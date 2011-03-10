@@ -10,6 +10,9 @@ function views_pdf_views_api() {
   );
 }
 
+/**
+ * Implementation of hook_theme()
+ */
 function views_pdf_theme() {
   return array(
     'views_pdf_plugin_style_table' => array(
@@ -20,28 +23,35 @@ function views_pdf_theme() {
   );
 }
 
-function _views_pdf_include_pdf_lib() {
-  $path = drupal_get_path('module', 'views_pdf');
-  require_once $path . '/views_pdf_template.php';
-}
-
-
+/**
+ * This method can be used to load the PDF library class.
+ */
 function views_pdf_get_new_pdf_instance($orientation='P', $unit='mm', $format='A4', $unicode=true, $encoding='UTF-8', $diskcache=false) {
   _views_pdf_include_pdf_lib();
   return new PdfTemplate($orientation, $unit, $format, $unicode, $encoding, $diskcache);
 
 }
 
+/**
+ * This method can be used to get all available fonts. 
+ */
 function views_pdf_get_font_list() {
   _views_pdf_include_pdf_lib();
   return PdfTemplate::getAvailableFontsCleanList();
 }
 
+
+/**
+ * This method can be used to get all available templates.
+ */
 function views_pdf_get_pdf_templates() {
   _views_pdf_include_pdf_lib();
   return PdfTemplate::getAvailableTemplates();  
 }
 
+/**
+ * This method can be used to return a list of posible page formats.
+ */
 function views_pdf_get_page_formats() {
   $format['custom'] = t('Custom');
   $format['4A0'] = '4A0';
@@ -95,3 +105,12 @@ function views_pdf_get_page_formats() {
   $format['FOLIO'] = 'FOLIO';
   return $format;
 }
+
+
+
+function _views_pdf_include_pdf_lib() {
+  $path = drupal_get_path('module', 'views_pdf');
+  require_once $path . '/views_pdf_template.php';
+}
+
+

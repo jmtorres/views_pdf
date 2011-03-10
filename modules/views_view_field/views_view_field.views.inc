@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Implementation of hook_views_handler()
+ */
 function views_view_field_views_handlers() {
   return array(
     'info' => array(
@@ -13,7 +16,9 @@ function views_view_field_views_handlers() {
   );
 }
 
-
+/**
+ * Implemenation of hook_views_data()
+ */
 function views_view_field_views_data() {
 
 

@@ -1,6 +1,8 @@
 <?php
 
-
+/**
+ * Implementation of hook_views_handlers()
+ */
 function views_pdf_views_handlers() {
   return array(
     'info' => array(
@@ -17,7 +19,9 @@ function views_pdf_views_handlers() {
   );
 }
 
-
+/**
+ * Implementation of hook_views_data()
+ */
 function views_pdf_views_data() {
   $data['pdf']['table']['group'] = t('PDF');
   $data['pdf']['table']['join'] = array(
@@ -71,9 +75,6 @@ function views_pdf_views_plugins() {
         'admin' => t('PDF Page'),
         'theme' => 'views_pdf', // For the prefix of template file!
         'theme file' => 'views_pdf.theme.inc',
-      //  'theme path' => $theme_path,
-        // @TODO - Should probably provide some help.
-        // 'help topic' => 'display-feed',
       ),
     ),
     'style' => array(
@@ -97,7 +98,6 @@ function views_pdf_views_plugins() {
         'handler' => 'views_pdf_plugin_style_unformatted',
         'parent' => 'default',
         'theme' => 'views_pdf_unformatted',
-    //    'theme path' => $theme_path,
         'theme file' => 'views_pdf.theme.inc',
         'uses row plugin' => TRUE,
         'uses fields' => TRUE,

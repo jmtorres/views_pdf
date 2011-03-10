@@ -1,7 +1,7 @@
 <?php
 
 /**
- * A direct include is not realy possible. The basic functions of drupal must be 
+ * A direct include of this class is not realy possible. The basic functions of drupal must be 
  * present.
  * 
  */
@@ -11,7 +11,9 @@ require_once variable_get('views_pdf_fpdi_bridge_path', 'lib/fpdi/fpdi2tcpdf_bri
 require_once variable_get('views_pdf_fpdi_path', 'lib/fpdi/fpdi.php');
 
 
-
+/**
+ * The main class to generate the PDF.
+ */
 class PdfTemplate extends FPDI
 {
   protected static $fontList = NULL;
@@ -92,12 +94,16 @@ class PdfTemplate extends FPDI
     'zarbold' => 'ZarBold'
   );
   
+  /**
+   * This method overrides the parent constructor method.
+   * this is need to reset the default values.
+   */
   public function __construct($orientation='P', $unit='mm', $format='A4', $unicode=true, $encoding='UTF-8', $diskcache=false) {
     parent::__construct($orientation, $unit, $format, $unicode, $encoding, $diskcache);
     $this->defaultOrientation = $orientation;
     $this->defaultFormat = $format;
   }
-  
+
   public function setDefaultFontSize($size) {
     $this->defaultFontSize = $size;
   }
@@ -125,14 +131,25 @@ class PdfTemplate extends FPDI
     );
   }
   
+  /**
+   * This method must be overriden, in the other case, some
+   * output is printed to the header.
+   */
   function Header() {
   
   }
   
+  /**
+   * This method must be overriden, in the other case, some
+   * output is printed to the footer.
+   */
   function Footer() {
   
   }
   
+  /**
+   * Converts a hex color into an array with RGB colors.
+   */
   public function convertHexColorToArray($hex) {
     if(strlen($hex) == 6) {
       $r = substr($hex, 0, 2);
@@ -154,6 +171,9 @@ class PdfTemplate extends FPDI
     
   }
   
+  /**
+   * Sets the current header and footer of the page.
+   */
   public function setHeaderFooter($row, $options, $view) {
     if($this->getPage() > 0 && !isset($this->headerFooterData[$this->getPage()])) {
       $this->headerFooterData[$this->getPage()] = & $row;
@@ -163,6 +183,9 @@ class PdfTemplate extends FPDI
     
   }
   
+  /**
+   * Close the current page.
+   */
   public function Close() {
     // Print the Header & Footer 
     $row = array();
@@ -205,6 +228,9 @@ class PdfTemplate extends FPDI
     
   }
   
+  /**
+   * This method draws a field on the PDF.
+   */
   public function drawContent($row, $options, &$view = NULL, $key = NULL) {
     
     // Check if there is a page, if not add it:
@@ -366,6 +392,9 @@ class PdfTemplate extends FPDI
     
   }
   
+  /**
+   * This method draws a table on the PDF.
+   */
   public function drawTable(&$view, $options) {
     
     $rows = $view->result;
@@ -521,10 +550,17 @@ class PdfTemplate extends FPDI
     
   }
   
+  /**
+   * This method resets the page number. This is useful if you want to start
+   * the numbering by zero.
+   */
   public function resetRowPageNumber() {
     $this->rowContentPageNumber = 0;
   }
   
+  /**
+   * This method adds a new page to the PDF.
+   */
   public function addPage($path = NULL, $reset = false, $numbering = 'main') {
     
     $this->mainContentPageNumber++;
@@ -592,13 +628,13 @@ class PdfTemplate extends FPDI
     if($format == false) {
       parent::addPage();
       $this->setPageFormat($this->defaultFormat, $this->defaultOrientation);
-    }
-      
-    
-    
+    }    
     
   }
   
+  /**
+   * This method returns a list of current uploaded files.
+   */
   public static function getAvailableTemplates() {
     if(self::$templateList != NULL) {
       return self::$templateList;
@@ -621,6 +657,9 @@ class PdfTemplate extends FPDI
   
   }
   
+  /**
+   * This method returns the path to a specific template.
+   */
   public static function getTemplatePath($template, $row = null, $view = null) {
     if(empty($template)) {
       return '';
@@ -639,7 +678,9 @@ class PdfTemplate extends FPDI
   }
 
 
-  
+  /**
+   * This method returns a list of available fonts. 
+   */
   public static function getAvailableFonts() {
     if(self::$fontList != NULL) {
       return self::$fontList;
@@ -680,6 +721,9 @@ class PdfTemplate extends FPDI
     return $font_mapping;
   }
   
+  /**
+   * This method returns a cleaned up version of the font list.
+   */
   public static function getAvailableFontsCleanList() {
     if(self::$fontListClean != NULL) {
       return self::$fontListClean;
@@ -701,6 +745,9 @@ class PdfTemplate extends FPDI
     return $clean;
   }
   
+  /**
+   * This method returns the name of a given font. 
+   */
   protected static function getFontNameByFileName($path) {
     include $path;
     return $name;

@@ -1,5 +1,10 @@
 <?php
 
+
+/**
+ * Theme function to style the table UI in the Table Style Settings pages in the
+ * view editing form. 
+ */
 function theme_views_pdf_plugin_style_table($form) {
   $output = drupal_render($form['description_markup']);
 
