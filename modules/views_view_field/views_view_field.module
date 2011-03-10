@@ -1,0 +1,13 @@
+<?php
+
+
+/**
+ * Implementation of hook_views_api().
+ */
+function views_view_field_views_api() {
+  return array(
+    'api' => 2,
+  );
+}
+
+
