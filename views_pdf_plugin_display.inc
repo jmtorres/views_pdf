@@ -289,6 +289,22 @@ class views_pdf_plugin_display extends views_plugin_display_page {
         
         
         break;
+        
+      case 'displays':
+        $form['#title'] .= t('Attach to');
+        $displays = array();
+        foreach ($this->view->display as $display_id => $display) {
+          if (!empty($display->handler) && $display->handler->accept_attachments()) {
+            $displays[$display_id] = $display->display_title;
+          }
+        }
+        $form['displays'] = array(
+          '#type' => 'checkboxes',
+          '#description' => t('The feed icon will be available only to the selected displays.'),
+          '#options' => $displays,
+          '#default_value' => $this->get_option('displays'),
+        );
+        break;
     }
   }
   
@@ -297,20 +313,50 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     
     $fonts = views_pdf_get_font_list();
     
+    // Change Page title:
+    $categories['page'] = array(
+      'title' => t('PDF settings'),
+    );
+    
+    // Add for attach the display to others:
+    $displays = array_filter($this->get_option('displays'));
+    if (count($displays) > 1) {
+      $attach_to = t('Multiple displays');
+    }
+    else if (count($displays) == 1) {
+      $display = array_shift($displays);
+      if (!empty($this->view->display[$display])) {
+        $attach_to = check_plain($this->view->display[$display]->display_title);
+      }
+    }
+
+    if (!isset($attach_to)) {
+      $attach_to = t('None');
+    }
+
+    $options['displays'] = array(
+      'category' => 'page',
+      'title' => t('Attach to'),
+      'value' => $attach_to,
+    );
+  
+    // Add for pdf page settings
     $options['pdf_page'] = array(
-      'category' => 'basic',
+      'category' => 'page',
       'title' => t('PDF Page Settings'),
       'value' => $this->get_option('default_page_format'),
       'desc' => t('Define some PDF specific settings.'),
     );    
     
+    // Add for pdf font settings
     $options['pdf_fonts'] = array(
-      'category' => 'basic',
+      'category' => 'page',
       'title' => t('PDF Fonts Settings'),
       'value' => t('!family at !size pt', array('!family' => $fonts[$this->get_option('default_font_family')], '!size' => $this->get_option('default_font_size'))),
       'desc' => t('Define some PDF specific settings.'),
     );    
     
+    // add for pdf template settings
     if($this->get_option('leading_template') != '' || $this->get_option('template') != '' || $this->get_option('succeed_template') != '') {
       $isAnyTemplate = t('Yes');
     }
@@ -318,9 +364,8 @@ class views_pdf_plugin_display extends views_plugin_display_page {
       $isAnyTemplate = t('No');    
     }
     
-    
     $options['pdf_template'] = array(
-      'category' => 'basic',
+      'category' => 'page',
       'title' => t('PDF Template Settings'),
       'value' => $isAnyTemplate,
       'desc' => t('Define some PDF specific settings.'),
@@ -355,8 +400,7 @@ class views_pdf_plugin_display extends views_plugin_display_page {
       
         break;
       
-      case 'pdf_template':
-        
+      case 'pdf_template':        
         $this->set_option('leading_template', $form_state['values']['leading_template']);
         $this->set_option('template', $form_state['values']['template']);
         $this->set_option('succeed_template', $form_state['values']['succeed_template']);
@@ -382,6 +426,30 @@ class views_pdf_plugin_display extends views_plugin_display_page {
 
       
         break;
+      
+      case 'displays':
+        $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]);
+        break;
+    }
+  }
+  
+  /**
+   * Attach to another view.
+   */
+  function attach_to($display_id) {
+    $displays = $this->get_option('displays');
+    if (empty($displays[$display_id])) {
+      return;
+    }
+
+    // Defer to the feed style; it may put in meta information, and/or
+    // attach a feed icon.
+    $plugin = $this->get_plugin();
+    if ($plugin) {
+      $clone = $this->view->clone_view();
+      $clone->set_display($this->display->id);
+      $clone->build_title();
+      $plugin->attach_to($display_id, $this->get_path(), $clone->get_title());
     }
   }
 

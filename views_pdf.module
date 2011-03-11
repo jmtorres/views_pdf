@@ -19,7 +19,9 @@ function views_pdf_theme() {
       'arguments' => array('form' => NULL),
       'file' => 'views_pdf.admin.inc',
     ),
-
+    'views_pdf_icon' => array(
+      'arguments' => array('url' => NULL, 'title' => NULL),
+    ),
   );
 }
 
@@ -30,6 +32,13 @@ function views_pdf_get_new_pdf_instance($orientation='P', $unit='mm', $format='A
   _views_pdf_include_pdf_lib();
   return new PdfTemplate($orientation, $unit, $format, $unicode, $encoding, $diskcache);
 
+}
+
+function theme_views_pdf_icon($url, $title) {
+  $path = drupal_get_path('module', 'views_pdf') . '/images/pdf.png';
+  if ($image = theme('image', $path, t('PDF content'), $title)) {
+    return '<a href="'. check_url($url) .'" class="pdf-icon">'. $image .'</a>';
+  }  
 }
 
 /**

@@ -10,12 +10,9 @@ class views_pdf_plugin_style_table extends views_plugin_style {
   function render() {
     $output = '';
     
-    $this->view->numberOfRecords = count($this->view->result);
-    
+    $this->view->numberOfRecords = count($this->view->result);  
     $this->view->pdf->drawTable($this->view, $this->options);
     
-
-    //unset($this->view->row_index);
     return $output;
   }
 
@@ -24,12 +21,8 @@ class views_pdf_plugin_style_table extends views_plugin_style {
   function option_definition() {
     $options = parent::option_definition();
 
-
     $options['info'] = array('default' => array());
-    $options['position'] = array('default' => array());
-
-    
-    
+    $options['position'] = array('default' => array());    
 
     return $options;
   }
@@ -308,6 +301,27 @@ class views_pdf_plugin_style_table extends views_plugin_style {
 
   }
 
+  /**
+   * Attach this view to another display as a feed.
+   *
+   * Provide basic functionality for all export style views like attaching a
+   * feed image link.
+   */
+  function attach_to($display_id, $path, $title) {
+    $display = $this->view->display[$display_id]->handler;
+    $url_options = array();
+    $input = $this->view->get_exposed_input();
+    if ($input) {
+      $url_options['query'] = $input;
+    }
+
+    $url = url($this->view->get_url(NULL, $path), $url_options);
+
+    if (empty($this->view->feed_icon)) {
+      $this->view->feed_icon = '';
+    }
+    $this->view->feed_icon .= theme('views_pdf_icon', $url, $title);
+  }
 
 
 }
