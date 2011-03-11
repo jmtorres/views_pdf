@@ -32,7 +32,7 @@ class views_pdf_plugin_display extends views_plugin_display_page {
   }
   
   
-  function execute() {
+  function execute($path_to_store_pdf = '', $destination = 'I') {
     
     if($this->get_option('default_page_format') == 'custom') {
       if(preg_match('/([0-9]+)x([0-9]+)/', $this->get_option('default_page_format_custom'), $result)) {
@@ -71,7 +71,11 @@ class views_pdf_plugin_display extends views_plugin_display_page {
       echo $html;
     }
     
-    $this->view->pdf->Output($this->view->name);
+    if(empty($path_to_store_pdf)) {
+      $path_to_store_pdf = $this->view->name;
+    }
+    
+    return $this->view->pdf->Output($path_to_store_pdf, $destination);
     
   }
 
