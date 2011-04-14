@@ -13,10 +13,9 @@
 /**
  * Get the depending classes.
  */
-$path = views_pdf_get_libraries_path();
-require_once variable_get('views_pdf_tcpdf_path', $path . 'tcpdf/tcpdf.php');
-require_once variable_get('views_pdf_fpdi_bridge_path', $path . 'fpdi/fpdi2tcpdf_bridge.php');
-require_once variable_get('views_pdf_fpdi_path', $path . 'fpdi/fpdi.php');
+require_once views_pdf_get_library('tcpdf') . '/tcpdf.php';
+require_once views_pdf_get_library('fpdi') .  '/fpdi2tcpdf_bridge.php';
+require_once views_pdf_get_library('fpdi') . '/fpdi.php';
 
 
 /**

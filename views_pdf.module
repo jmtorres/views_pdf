@@ -60,10 +60,18 @@ function views_pdf_get_font_list() {
 
 
 /**
- * This function returns the path to the libraries.
+ * This function returns the path to a given library.
+ * 
+ * @param $name Name of the Library
+ * 
  */
-function views_pdf_get_libraries_path() {
-  return 'sites/all/libraries/';
+function views_pdf_get_library($name) {
+    if (function_exists('libraries_get_path')) {
+      return libraries_get_path($name);
+    }
+    else {
+      return 'sites/all/libraries/' . $name;
+    }
 }
 
 
