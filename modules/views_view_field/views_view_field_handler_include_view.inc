@@ -1,19 +1,28 @@
 <?php
 
+/**
+ * @file
+ * Plugin for the views include field
+ */
+
+/**
+ * This class contains the functionality to add a view as a new field in
+ * another view.
+ *
+ */
 class views_view_field_handler_include_view extends views_handler_field {
   
-  protected $countRecords = 0;
-  
-  function init(&$view, $options) {
-    parent::init($view, $options);
-    
-  }
-
+  /**
+   * Query the view. Deactivated because we do not want to query anything.
+   */
   function query() {
     // Override parent::query() and don't alter query.
     $this->field_alias = 'view_include_'. $this->position;
   }
   
+  /**
+   * Definitions of the views field options.
+   */
   function option_definition() {
     $options = parent::option_definition();
     
@@ -24,14 +33,17 @@ class views_view_field_handler_include_view extends views_handler_field {
     return $options;
   }
   
+  /**
+   * Settings form
+   */
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     
     $views = views_get_all_views();
     
   
-    foreach($views as $key => $view) {
-      if($this->view->name != $view->name){
+    foreach ($views as $key => $view) {
+      if ($this->view->name != $view->name) {
         $view_options[$key] = $view->name;
       }
     }
@@ -51,7 +63,7 @@ class views_view_field_handler_include_view extends views_handler_field {
       '#description' => t('Enter the number of arguments you want to pass to the view.'),
     );
     
-    for($i = 0; $this->options['number_of_args'] > $i; $i++) {
+    for ($i = 0; $this->options['number_of_args'] > $i; $i++) {
       $form['args'][$i] = array(
         '#type' => 'textfield',
         '#title' => t('Arguement #%number', array('%number' => ($i+1))),
@@ -111,9 +123,13 @@ class views_view_field_handler_include_view extends views_handler_field {
 
   }
 
+  /**
+   * Renders the field. For rendering the new views is created an added. For
+   * PDF displays the two PDF classes where merged.
+   */
   function render($values) {
     
-    if(!empty($this->options['exclude'])) {
+    if (!empty($this->options['exclude'])) {
     //  return '';
     }
   
@@ -124,7 +140,7 @@ class views_view_field_handler_include_view extends views_handler_field {
     
     $tokens = $this->get_render_tokens('');
     $args = array();
-    foreach($this->options['args'] as $arg) {
+    foreach ($this->options['args'] as $arg) {
       $args[] = str_replace(array_keys($tokens), $tokens, $arg);
     }
     
@@ -134,9 +150,9 @@ class views_view_field_handler_include_view extends views_handler_field {
     $view->set_arguments($args);
     
     // Try same display as the current
-    if(!$view->set_display($currentDisplay)) {
+    if (!$view->set_display($currentDisplay)) {
       // Try the display type
-      if(!$view->set_display($displayType.'_1')) {
+      if (!$view->set_display($displayType . '_1')) {
         // Use the default:
         $view->init_display();
       }      
@@ -149,19 +165,16 @@ class views_view_field_handler_include_view extends views_handler_field {
 
     // Important only for pdf views. With this action we assign the 
     // PDF document to the new view
-    if(isset($this->view->pdf) && is_object($this->view->pdf)) {
+    if (isset($this->view->pdf) && is_object($this->view->pdf)) {
       $view->pdf =& $this->view->pdf;
     }
     
-    if(is_object($view->style_plugin)) {
+    if (is_object($view->style_plugin)) {
       return $view->style_plugin->render();
     }
     else {
       return 'style plugin not found';
-    }
-
-    
-    
+    } 
   }
   
   function allow_advanced_render() {

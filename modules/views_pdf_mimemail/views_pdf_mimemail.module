@@ -1,11 +1,21 @@
 <?php
 
+/**
+ * @file
+ * The mimemail integration enables the sending of generated
+ * PDF via e-mail.
+ *
+ */
+
+/**
+ * Implementaion of hook_theme()
+ */
 function views_pdf_mimemail_theme() {
-	return array(
-		'views_pdf_mimemail_rules_action_mail_form_theme' => array(
-			'arguments' => array('form' => NULL),
-		),
-	);
+  return array(
+    'views_pdf_mimemail_rules_action_mail_form_theme' => array(
+      'arguments' => array('form' => NULL),
+    ),
+  );
 }
 
 

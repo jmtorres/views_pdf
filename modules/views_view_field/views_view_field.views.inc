@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Views hook implementations
+ */
+
+/**
  * Implementation of hook_views_handler()
  */
 function views_view_field_views_handlers() {

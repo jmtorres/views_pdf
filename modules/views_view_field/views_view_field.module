@@ -1,6 +1,11 @@
 <?php
 
-
+/**
+ * @file 
+ * The views field is used to add a field, which can include another view into 
+ * the current view.
+ */
+ 
 /**
  * Implementation of hook_views_api().
  */

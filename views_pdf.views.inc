@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Implementaion of the views hooks.
+ */
+
+/**
  * Implementation of hook_views_handlers()
  */
 function views_pdf_views_handlers() {

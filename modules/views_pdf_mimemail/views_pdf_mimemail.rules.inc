@@ -1,23 +1,34 @@
 <?php
 
 
+/**
+ * @file
+ * Rules integration of the mimemail and the PDF Views module. 
+ *
+ */
+
+/**
+ * Implementation of hook_rules_action_info_alter()
+ */
 function views_pdf_mimemail_rules_action_info_alter(&$actions) {
-	$actions['mimemail_rules_action_mail_to_user']['eval input'][] = 'views_pdf_attachments';
-	$actions['mimemail_rules_action_mail']['eval input'][] = 'views_pdf_attachments';
-	$actions['mimemail_rules_action_mail_to_users_of_role']['eval input'][] = 'views_pdf_attachments';
-	
-	$actions['views_pdf_mimemail_rules_action_mail_to_user'] = $actions['mimemail_rules_action_mail_to_user'];
-	unset($actions['mimemail_rules_action_mail_to_user']);
-	
-	$actions['views_pdf_mimemail_rules_action_mail'] = $actions['mimemail_rules_action_mail'];
-	unset($actions['mimemail_rules_action_mail']);
-	
-	$actions['views_pdf_mimemail_rules_action_mail_to_users_of_role'] = $actions['mimemail_rules_action_mail_to_users_of_role'];
-	unset($actions['mimemail_rules_action_mail_to_users_of_role']);
-	
+  $actions['mimemail_rules_action_mail_to_user']['eval input'][] = 'views_pdf_attachments';
+  $actions['mimemail_rules_action_mail']['eval input'][] = 'views_pdf_attachments';
+  $actions['mimemail_rules_action_mail_to_users_of_role']['eval input'][] = 'views_pdf_attachments';
+  
+  $actions['views_pdf_mimemail_rules_action_mail_to_user'] = $actions['mimemail_rules_action_mail_to_user'];
+  unset($actions['mimemail_rules_action_mail_to_user']);
+  
+  $actions['views_pdf_mimemail_rules_action_mail'] = $actions['mimemail_rules_action_mail'];
+  unset($actions['mimemail_rules_action_mail']);
+  
+  $actions['views_pdf_mimemail_rules_action_mail_to_users_of_role'] = $actions['mimemail_rules_action_mail_to_users_of_role'];
+  unset($actions['mimemail_rules_action_mail_to_users_of_role']);
+  
 }
 
-
+/**
+ * Sends a PDF to a user.
+ */
 function views_pdf_mimemail_rules_action_mail_to_user($user, $settings) {
   // Process settings.
   $settings = views_pdf_mimemail_rules_form_settings_process($settings);
@@ -47,11 +58,16 @@ function views_pdf_mimemail_rules_action_mail_to_user($user, $settings) {
   }
 }
 
+/**
+ * Sends a e-mail with a PDF.
+ */
 function views_pdf_mimemail_rules_action_mail($user, $settings) {
   views_pdf_mimemail_rules_action_mail_to_user(NULL, $settings);
 }
 
-
+/**
+ * Sends a PDF to all user of specific role
+ */
 function views_pdf_mimemail_rules_action_mail_to_users_of_role($settings) {
   $recipients = array_filter(array_keys(array_filter($settings['recipients'])));
 
@@ -85,34 +101,38 @@ function views_pdf_mimemail_rules_action_mail_to_users_of_role($settings) {
   }
 }
 
-
+/**
+ * Process the form settings array to produce the nessecary information. This 
+ * includes also the PDF.
+ *
+ */
 function views_pdf_mimemail_rules_form_settings_process($settings) {
   $settings = mimemail_rules_form_settings_process($settings);
   
   // Add option for direct include of PDFs from Views PDF
-  if(isset($settings['views_pdf_attachments'])) {
+  if (isset($settings['views_pdf_attachments'])) {
     $views_pdf_attachments = array();
-    foreach(explode("\n", $settings['views_pdf_attachments']) as $attachment) {
+    foreach (explode("\n", $settings['views_pdf_attachments']) as $attachment) {
       $splits = explode('||||', $attachment);
       $view_name = trim($splits[0]);
       $arguments = $splits[1];
-      if(!empty($view_name)) {
+      if (!empty($view_name)) {
         $view = views_get_view($view_name);
     
         $view->set_arguments($arguments);
     
         // Try to get pdf display
-        if(!$view->set_display('pdf')) {
+        if (!$view->set_display('pdf')) {
           // Try the display type
-          if(!$view->set_display('pdf_1')) {
+          if (!$view->set_display('pdf_1')) {
             // There is definitly no pdf display
             continue;
           }      
         }
          
         $view->pre_execute();
-        foreach($view->display as $id => $display) {
-          if($display->display_plugin == 'pdf' && isset($display->handler)) {
+        foreach ($view->display as $id => $display) {
+          if ($display->display_plugin == 'pdf' && isset($display->handler)) {
             $settings['attachments'][] = array(
               'filecontent' => $display->handler->execute($tmp_path, 'S'),
               'filename' => $view_name . '_' . $id . '.pdf',
@@ -122,7 +142,7 @@ function views_pdf_mimemail_rules_form_settings_process($settings) {
         }
                 
       }
-	
+  
     }
   }
   
@@ -130,55 +150,66 @@ function views_pdf_mimemail_rules_form_settings_process($settings) {
   
 }
 
-
+/**
+ * Callback function for the settings form of the rule.
+ */
 function views_pdf_mimemail_rules_action_mail_to_user_form($settings = array(), &$form) {
-	mimemail_rules_action_mail_to_user_form($settings, $form);
-	views_pdf_mimemail_rules_action_additional_form($settings, $form);
+  mimemail_rules_action_mail_to_user_form($settings, $form);
+  views_pdf_mimemail_rules_action_additional_form($settings, $form);
 }
 
+/**
+ * Callback function for the settings form of the rule.
+ */
 function views_pdf_mimemail_rules_action_mail_form($settings = array(), &$form) {
-	mimemail_rules_action_mail_form($settings, &$form);
-	views_pdf_mimemail_rules_action_additional_form($settings, $form);
+  mimemail_rules_action_mail_form($settings, &$form);
+  views_pdf_mimemail_rules_action_additional_form($settings, $form);
 }
 
+/**
+ * Callback function for the settings form of the rule.
+ */
 function views_pdf_mimemail_rules_action_mail_to_users_of_role_form($settings = array(), &$form) {
-	mimemail_rules_action_mail_to_users_of_role_form($settings, $form);
-	views_pdf_mimemail_rules_action_additional_form($settings, $form);
+  mimemail_rules_action_mail_to_users_of_role_form($settings, $form);
+  views_pdf_mimemail_rules_action_additional_form($settings, $form);
 }
 
-
+/**
+ * Adds the additional used setting form fields for the sending of the PDF to the 
+ * user.
+ */
 function views_pdf_mimemail_rules_action_additional_form($settings = array(), &$form) {   
     $views = views_get_all_views();
     
     $view_options = array( ' ' => ' ');
     
     // Filter only views with a pdf display
-    foreach($views as $key => $view) {
-      foreach($view->display as $id => $display) {
-        if($display->display_plugin == 'pdf') {
+    foreach ($views as $key => $view) {
+      foreach ($view->display as $id => $display) {
+        if ($display->display_plugin == 'pdf') {
           $view_options[$key] = $view->name;
         }
       }
     }
     
     $views_pdf_attachments = array();
-    foreach(explode("\n", $settings['views_pdf_attachments']) as $attachment) {
-    	$splits = explode('||||', $attachment);
-    	$views_pdf_attachments[] = array(
-    	  'view' => $splits[0],
-    	  'arguments' => $splits[1],
-    	);
+    foreach (explode("\n", $settings['views_pdf_attachments']) as $attachment) {
+      $splits = explode('||||', $attachment);
+      $views_pdf_attachments[] = array(
+        'view' => $splits[0],
+        'arguments' => $splits[1],
+      );
     }
         
-    if(!isset($views_pdf_attachments)) {
+    if (!isset($views_pdf_attachments)) {
       $views_pdf_attachments = array();
     }
     
     // Remove empty rows:
     else {
-      foreach($views_pdf_attachments as $key => $value) {
+      foreach ($views_pdf_attachments as $key => $value) {
         $value['view'] = trim($value['view']);
-        if(empty($value['view'])) {
+        if (empty($value['view'])) {
           unset($views_pdf_attachments[$key]);
         }
       }
@@ -187,8 +218,8 @@ function views_pdf_mimemail_rules_action_additional_form($settings = array(), &$
     $form['settings']['views_pdf_attachments'] = array(
       '#title' => t('Views PDF Attachments'),
       '#type' => 'fieldset',
-      '#collapsed' => true,
-      '#collapsible' => true,
+      '#collapsed' => TRUE,
+      '#collapsible' => TRUE,
       '#description' => t('Here you can add Views PDF attachments to the e-mail. In the arguement field you can use also replacement patterns.'),
     );
     $form['settings']['views_pdf_attachments']['#element_validate'][] = 'views_pdf_mimemail_rules_action_mail_to_user_form_views_pdf_validate';
@@ -200,7 +231,7 @@ function views_pdf_mimemail_rules_action_additional_form($settings = array(), &$
     $views_pdf_attachments[] = array();
     $views_pdf_attachments[] = array();
   
-    foreach($views_pdf_attachments as $attachment) {
+    foreach ($views_pdf_attachments as $attachment) {
       $form['settings']['views_pdf_attachments'][] = array(
         'view' => array(
           '#type' => 'select',
@@ -219,12 +250,14 @@ function views_pdf_mimemail_rules_action_additional_form($settings = array(), &$
 }
 
 
-
+/**
+ * Transform the user input into a savable array.
+ */
 function views_pdf_mimemail_rules_action_mail_to_user_form_views_pdf_validate($element, &$form_state) {
 
   $views_pdf_attachments = array();
-  foreach($form_state['values']['settings']['views_pdf_attachments'] as $attachment) {
-    if(!empty($attachment['view'])) {
+  foreach ($form_state['values']['settings']['views_pdf_attachments'] as $attachment) {
+    if (!empty($attachment['view'])) {
       $views_pdf_attachments[] = $attachment['view'] . '||||' . $attachment['arguments'];
     }
   }

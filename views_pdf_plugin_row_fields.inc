@@ -1,7 +1,18 @@
 <?php
 
-class views_pdf_plugin_row_fields extends views_plugin_row 
-{
+/**
+ * @file
+ * PDF row fields plugin provides the the fields plugin for unformatted style.
+ */
+
+
+/**
+ * This class contains all the functionality of the field PDF style.
+ */ 
+class views_pdf_plugin_row_fields extends views_plugin_row {
+  /**
+   * Renders the views.
+   */
   function render($records) {
     $options = $this->option_definition();
     
@@ -22,7 +33,7 @@ class views_pdf_plugin_row_fields extends views_plugin_row
 
         $options = $this->options['formats'][$id];      
         $this->view->pdf->drawContent($row, $options, $this->view, $id);
-        if($options['position']['object'] == 'header_footer') {
+        if ($options['position']['object'] == 'header_footer') {
           // Set or update header / footer options
           $this->view->pdf->setHeaderFooter($row, $this->options, $this->view);
         }
@@ -38,7 +49,10 @@ class views_pdf_plugin_row_fields extends views_plugin_row
     }
     
   }
-
+  
+  /**
+   * Option definitions
+   */
   function option_definition() {
     $options = parent::option_definition();
 
@@ -52,8 +66,8 @@ class views_pdf_plugin_row_fields extends views_plugin_row
   }
 
   /**
-  * Provide a form for setting options.
-  */
+   * Provide a form for setting options.
+   */
   function options_form(&$form, &$form_state) {
   
 
@@ -73,8 +87,7 @@ class views_pdf_plugin_row_fields extends views_plugin_row
     
     $file_fields = array();
     foreach ($this->display->handler->get_handlers('field') as $id => $handler) {
-      if($handler->content_field['type'] == 'filefield')
-      {
+      if ($handler->content_field['type'] == 'filefield') {
         $file_fields[$id] = $options[$id];
       }
     }    
@@ -105,17 +118,16 @@ class views_pdf_plugin_row_fields extends views_plugin_row
       '#value' => t('Here you can define some style settings for each field.'),
     );
     
-    foreach($options as $field => $option) {
+    foreach ($options as $field => $option) {
       
-      if($fields[$field]['exclude'] == 1)
-      {
+      if ($fields[$field]['exclude'] == 1) {
         continue;
       }
 
 
       $form['formats'][$field] = array(
         '#type' => 'fieldset',
-        '#title' => $option,
+        '#title' => check_plain($option),
         '#collapsed' => TRUE,
         '#collapsable' => TRUE,
       );
@@ -149,7 +161,7 @@ class views_pdf_plugin_row_fields extends views_plugin_row
         '#default_value' => !empty($this->options['formats'][$field]['position']['corner']) ? $this->options['formats'][$field]['position']['corner'] : 'top_left',
       );
       
-      $relativeElements['field_'.$field] = t('Field: !field', array('!field' => $option));
+      $relativeElements['field_' . $field] = t('Field: !field', array('!field' => $option));
       
       
       $form['formats'][$field]['position']['x'] = array(
@@ -285,48 +297,48 @@ class views_pdf_plugin_row_fields extends views_plugin_row
 
   }
   
+  /**
+   * Stores the options
+   */
   function options_submit(&$form, &$form_state) {
     $default = $this->display->handler->get_option('default_font_style');
-    foreach($form_state['values']['row_options']['formats'] as $id => $field) {
+    foreach ($form_state['values']['row_options']['formats'] as $id => $field) {
       
       // Reset to default, if the elements are equal to the default settings
-      if(count(array_diff($default, $field['text']['font_style'])) == 0 &&  count(array_diff($field['text']['font_style'], $default)) == 0){
+      if (count(array_diff($default, $field['text']['font_style'])) == 0 && count(array_diff($field['text']['font_style'], $default)) == 0) {
         $form_state['values']['row_options']['formats'][$id]['text']['font_style'] = NULL;
       }
       
-      if($field['text']['align'] == $this->display->handler->get_option('default_text_align')){
+      if ($field['text']['align'] == $this->display->handler->get_option('default_text_align')) {
         $form_state['values']['row_options']['formats'][$id]['text']['align'] = NULL;
       }  
     }
 
     $files_path = file_directory_path();
-    $template_dir = variable_get('views_pdf_template_path','views_pdf_templates');
-    $dir = $files_path.'/'.$template_dir;
-    if(!is_dir($dir)) {
+    $template_dir = variable_get('views_pdf_template_path', 'views_pdf_templates');
+    $dir = $files_path. '/' . $template_dir;
+    if (!is_dir($dir)) {
       @mkdir($dir);
       @chmod($dir, 0775);
     }
     
-    if(is_writable($dir)) {      
-      if($file) {
+    if (is_writable($dir)) {      
+      if ($file) {
         $form_state['values']['row_options']['template'] = $file->destination;
       }
     }
     
-    if($form_state['values']['row_options']['leading_template'] == t(' -- None -- ')) {
+    if ($form_state['values']['row_options']['leading_template'] == t(' -- None -- ')) {
       $form_state['values']['row_options']['leading_template'] = '';
     }
     
-    if($form_state['values']['row_options']['template'] == t(' -- None -- ')) {
+    if ($form_state['values']['row_options']['template'] == t(' -- None -- ')) {
       $form_state['values']['row_options']['template'] = '';
     }
     
-    if($form_state['values']['row_options']['succeed_template'] == t(' -- None -- ')) {
+    if ($form_state['values']['row_options']['succeed_template'] == t(' -- None -- ')) {
       $form_state['values']['row_options']['succeed_template'] = '';
     }
 
   }
-
-
-
 }

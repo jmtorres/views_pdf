@@ -1,20 +1,32 @@
 <?php
 
+/**
+ * @file
+ * Views Append Handler
+ *
+ * To append a view to another a field handler is used.
+ */
 
+/**
+ * This class contains all the functionality to append a view to another one.
+ * 
+ */
 class views_append_handler_append_view extends views_handler_field {
-  
-  protected $countRecords = 0;
-  
-  function init(&$view, $options) {
-    parent::init($view, $options);
-    
-  }
 
+  
+  /**
+   * This method  is used to query data. In our case
+   * we want that no data is queried.
+   *
+   */
   function query() {
     // Override parent::query() and don't alter query.
     $this->field_alias = 'view_append_'. $this->position;
   }
   
+  /**
+   * This method contains the defintion of the options for appending a view.
+   */
   function option_definition() {
     $options = parent::option_definition();
     
@@ -23,6 +35,9 @@ class views_append_handler_append_view extends views_handler_field {
     return $options;
   }
   
+  /**
+   * Option form
+   */
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     
@@ -34,10 +49,12 @@ class views_append_handler_append_view extends views_handler_field {
     );
   }
 
+  /**
+   * This method renders the other view.
+   */
   function render($values) {
     
-    if($this->options['exclude'] == '1')
-    {
+    if ($this->options['exclude'] == '1') {
       return '';
     }
     
@@ -47,20 +64,21 @@ class views_append_handler_append_view extends views_handler_field {
     $url = str_replace(array_keys($tokens), $tokens, $this->options['url']);
     $data = file_get_contents($url);
     
-    $tmp_file = md5($url.time());
+    $tmp_file = md5($url . time());
 
     $files_path = file_directory_path();
-    $dir = $files_path.'/views_append_tmp_files';
-    if(!is_dir($dir)) {
+    $dir = $files_path . '/views_append_tmp_files';
+    
+    if (!is_dir($dir)) {
       @mkdir($dir);
       @chmod($dir, 0775);
     }
             
-    if(is_writable($dir)) {
+    if (is_writable($dir)) {
       $path = $dir . '/' . $tmp_file;
       views_append_request_with_cookie($url, $path);
     
-      if(isset($this->view->pdf) && is_object($this->view->pdf)) {
+      if (isset($this->view->pdf) && is_object($this->view->pdf)) {
         $this->view->pdf->addPdfDocument($path);
       }
       else {
@@ -71,6 +89,10 @@ class views_append_handler_append_view extends views_handler_field {
     
   }
   
+  
+  /**
+   * We dont want to use advanced rendering.
+   */
   function allow_advanced_render() {
     return FALSE;
   }

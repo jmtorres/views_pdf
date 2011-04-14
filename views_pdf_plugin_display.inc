@@ -1,9 +1,28 @@
 <?php
 
+/**
+ * @file
+ * PDF display plugin.
+ */
+
+/**
+ * This class contains all the functionality of the PDF display.
+ */
 class views_pdf_plugin_display extends views_plugin_display_page {
+  
+  /**
+   * Define the display type
+   */
   function get_style_type() { return 'pdf'; }
+  
+  /**
+   * Disable the breadcrumb
+   */
   function uses_breadcrumb() { return FALSE; }
 
+  /**
+   * Render the display
+   */
   function render() {
     // Generall document layout
     
@@ -27,15 +46,22 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     
   }
 
+  /**
+   * Provide the preview. Because PDF cannot be embedded good in HTML, we do not
+   * provide a preview.
+   */
   function preview() {
     return t('The PDF display does not provide a preview.');
   }
   
-  
+  /**
+   * This function executes the PDF display.
+   *
+   */
   function execute($path_to_store_pdf = '', $destination = 'I') {
     
-    if($this->get_option('default_page_format') == 'custom') {
-      if(preg_match('/([0-9]+)x([0-9]+)/', $this->get_option('default_page_format_custom'), $result)) {
+    if ($this->get_option('default_page_format') == 'custom') {
+      if (preg_match('/([0-9]+)x([0-9]+)/', $this->get_option('default_page_format_custom'), $result)) {
         $format[0] = $result[1]; // width
         $format[1] = $result[2]; // height
       }
@@ -53,10 +79,10 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     $this->view->pdf = views_pdf_get_new_pdf_instance($orientation, $unit, $format);
     
     // Set margins: top, left, right
-    $this->view->pdf->SetMargins($this->get_option('margin_left'), $this->get_option('margin_top'), $this->get_option('margin_right'), true);
+    $this->view->pdf->SetMargins($this->get_option('margin_left'), $this->get_option('margin_top'), $this->get_option('margin_right'), TRUE);
     
     // Set auto page break: margin bottom:
-    $this->view->pdf->SetAutoPageBreak(true, $this->get_option('margin_bottom'));
+    $this->view->pdf->SetAutoPageBreak(TRUE, $this->get_option('margin_bottom'));
     
     
     $this->view->pdf->setDefaultFontSize($this->get_option('default_font_size'));
@@ -67,11 +93,11 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     
     $html = $this->view->render($this->display->id);
     
-    if(!empty($html)) {
+    if (!empty($html)) {
       echo $html;
     }
     
-    if(empty($path_to_store_pdf)) {
+    if (empty($path_to_store_pdf)) {
       $path_to_store_pdf = $this->view->name;
     }
     
@@ -79,8 +105,12 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     
   }
 
+  /**
+   * This method defines the default sections and the appropriated values.
+   *
+   */
   function defaultable_sections($section = NULL) {
-    if (in_array($section, array('style_options', 'style_plugin', 'row_options', 'row_plugin',))) {
+    if (in_array($section, array('style_options', 'style_plugin', 'row_options', 'row_plugin'))) {
       return FALSE;
     }
 
@@ -96,16 +126,19 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     return $sections;
   }
 
+  /**
+   * The option definition.
+   */
   function option_definition() {
     $options = parent::option_definition();
 
     $options['displays'] = array('default' => array());
 
     // Overrides for standard stuff:
-    $options['style_plugin']['default'] = 'pdf';
+    $options['style_plugin']['default'] = 'pdf_unformatted';
     $options['style_options']['default']  = array('mission_description' => FALSE, 'description' => '');
     $options['sitename_title']['default'] = FALSE;
-    $options['row_plugin']['default'] = '';
+    $options['row_plugin']['default'] = 'pdf_fields';
     $options['defaults']['default']['style_plugin'] = FALSE;
     $options['defaults']['default']['style_options'] = FALSE;
     $options['defaults']['default']['row_plugin'] = FALSE;
@@ -134,6 +167,9 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     return $options;
   }
   
+  /**
+   * Option form
+   */
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     
@@ -312,6 +348,9 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     }
   }
   
+  /**
+   * Provide a summary of the options.
+   */
   function options_summary(&$categories, &$options) {
     parent::options_summary($categories, $options);
     
@@ -327,7 +366,7 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     if (count($displays) > 1) {
       $attach_to = t('Multiple displays');
     }
-    else if (count($displays) == 1) {
+    elseif (count($displays) == 1) {
       $display = array_shift($displays);
       if (!empty($this->view->display[$display])) {
         $attach_to = check_plain($this->view->display[$display]->display_title);
@@ -361,7 +400,7 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     );    
     
     // add for pdf template settings
-    if($this->get_option('leading_template') != '' || $this->get_option('template') != '' || $this->get_option('succeed_template') != '') {
+    if ($this->get_option('leading_template') != '' || $this->get_option('template') != '' || $this->get_option('succeed_template') != '') {
       $isAnyTemplate = t('Yes');
     }
     else {
@@ -379,6 +418,10 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     
   }
   
+  /**
+   * Handles the storage of the options.
+   *
+   */
   function options_submit(&$form, &$form_state) {
     // It is very important to call the parent function here:
     parent::options_submit($form, $form_state);
@@ -415,14 +458,14 @@ class views_pdf_plugin_display extends views_plugin_display_page {
         //       This is not allowed, so we use a iframe, but this cause some error in
         //       combination of a json response.
         $files_path = file_directory_path();
-        $template_dir = variable_get('views_pdf_template_path','views_pdf_templates');
-        $dir = $files_path.'/'.$template_dir;
-        if(!is_dir($dir)) {
+        $template_dir = variable_get('views_pdf_template_path', 'views_pdf_templates');
+        $dir = $files_path . '/' . $template_dir;
+        if (!is_dir($dir)) {
           @mkdir($dir);
           @chmod($dir, 0775);
         }
                 
-        if(is_writable($dir)) {
+        if (is_writable($dir)) {
           $template_path = file_create_path($dir);
           $file = file_save_upload('succeed_template_file', array(), $template_path);
         }
