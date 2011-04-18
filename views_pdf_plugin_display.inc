@@ -281,8 +281,9 @@ class views_pdf_plugin_display extends views_plugin_display_page {
         );
         $form['default_font_color'] = array(
           '#type' => 'textfield',
-          '#title' => t('Text Color (Hexadecimal)'),
-          '#size' => 10,
+          '#title' => t('Text Color'),
+          '#description' => t('If a value is entered without a comma, it will be interpreted as a hexadecimal RGB color. Normal RGB can be used by separating the components by a comma. e.g 255,255,255 for white. A CMYK color can be entered in the same way as RGB. e.g. 0,100,0,0 for magenta.'),
+          '#size' => 20,
           '#default_value' => $this->get_option('default_font_color'),
         );
     

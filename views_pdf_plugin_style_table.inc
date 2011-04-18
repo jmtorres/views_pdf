@@ -130,7 +130,8 @@ class views_pdf_plugin_style_table extends views_plugin_style {
       );
       $form['info'][$field]['header_style']['text']['color'] = array(
         '#type' => 'textfield',
-        '#title' => t('Text Color (Hexadecimal)'),
+        '#title' => t('Text Color'),
+        '#description' => t('If a value is entered without a comma, it will be interpreted as a hexadecimal RGB color. Normal RGB can be used by separating the components by a comma. e.g 255,255,255 for white. A CMYK color can be entered in the same way as RGB. e.g. 0,100,0,0 for magenta.'),
         '#size' => 10,
         '#default_value' => $this->options['info'][$field]['header_style']['text']['color'] == NULL ? $this->display->handler->get_option('default_text_color') : $this->options['info'][$field]['header_style']['text']['font_style'],
       );
@@ -201,8 +202,9 @@ class views_pdf_plugin_style_table extends views_plugin_style {
       );
       $form['info'][$field]['body_style']['text']['color'] = array(
         '#type' => 'textfield',
-        '#title' => t('Text Color (Hexadecimal)'),
-        '#size' => 10,
+        '#title' => t('Text Color'),
+        '#description' => t('If a value is entered without a comma, it will be interpreted as a hexadecimal RGB color. Normal RGB can be used by separating the components by a comma. e.g 255,255,255 for white. A CMYK color can be entered in the same way as RGB. e.g. 0,100,0,0 for magenta.'),
+        '#size' => 20,
         '#default_value' => $this->options['info'][$field]['body_style']['text']['color'] == NULL ? $this->display->handler->get_option('default_text_color') : $this->options['info'][$field]['body_style']['text']['font_style'],
       );
       

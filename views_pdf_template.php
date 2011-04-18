@@ -175,14 +175,34 @@ class PdfTemplate extends FPDI
     else {
       return array();
     }
-    
+  }
+  
+  /**
+   * Parse color input into an array.
+   *
+   * @param string $color Color entered by the user
+   * @return array color as an array
+   */
+  public function parseColor($color) {
+    $color = trim($color, ', ');
+    $components = explode(',', $color);
+    if (count($components) == 1) {
+      return $this->convertHexColorToArray($color);
+    }
+    else {
+      // Remove white spaces from comonents:
+      foreach ($components as $id => $component) {
+        $components[$id] = trim($component);
+      }
+      return $components;
+    }
   }
   
   /**
    * Sets the current header and footer of the page.
    */
   public function setHeaderFooter($row, $options, $view) {
-    if($this->getPage() > 0 && !isset($this->headerFooterData[$this->getPage()])) {
+    if ($this->getPage() > 0 && !isset($this->headerFooterData[$this->getPage()])) {
       $this->headerFooterData[$this->getPage()] = & $row;
     }
     $this->headerFooterOptions = $options;
@@ -354,7 +374,7 @@ class PdfTemplate extends FPDI
     $font_size = empty($options['text']['font_size']) ? $this->defaultFontSize : $options['text']['font_size'] ;
     $font_family = ($options['text']['font_family'] == 'default' || empty($options['text']['font_family'])) ? $this->defaultFontFamily : $options['text']['font_family'];
     $font_style = is_array($options['text']['font_style']) ? $options['text']['font_style'] : $this->defaultFontStyle;
-    $textColor = !empty($options['text']['color']) ? $this->convertHexColorToArray($options['text']['color']) : $this->convertHexColorToArray($this->defaultFontColor);
+    $textColor = !empty($options['text']['color']) ? $this->parseColor($options['text']['color']) : $this->parseColor($this->defaultFontColor);
     
     
     $w = $options['position']['width'];
