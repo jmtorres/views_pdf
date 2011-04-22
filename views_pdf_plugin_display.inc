@@ -454,10 +454,10 @@ class views_pdf_plugin_display extends views_plugin_display_page {
         $this->set_option('succeed_template', $form_state['values']['succeed_template']);
         
         // Save new file:
-        // TODO: Finde out why there is an error on ajax use with the form.
-        //       The problems comes from the fact that we upload via an AJAX request. 
-        //       This is not allowed, so we use a iframe, but this cause some error in
-        //       combination of a json response.
+        // Note: The jQuery update is required to use Ajax for file upload. With
+        // default Drupal jQuery it will not work.
+        // For upload with Ajax a iFrame is open and upload in it, because
+        // normal forms are not allowed to handle directly.
         $files_path = file_directory_path();
         $template_dir = variable_get('views_pdf_template_path', 'views_pdf_templates');
         $dir = $files_path . '/' . $template_dir;
@@ -468,7 +468,7 @@ class views_pdf_plugin_display extends views_plugin_display_page {
                 
         if (is_writable($dir)) {
           $template_path = file_create_path($dir);
-          $file = file_save_upload('succeed_template_file', array(), $template_path);
+          $file = file_save_upload('template_file', array(), $template_path);
         }
                 
 

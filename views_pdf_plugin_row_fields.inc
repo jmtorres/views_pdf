@@ -315,15 +315,24 @@ class views_pdf_plugin_row_fields extends views_plugin_row {
       }  
     }
 
+    // Save new file:
+    // Note: The jQuery update is required to use Ajax for file upload. With
+    // default Drupal jQuery it will not work.
+    // For upload with Ajax a iFrame is open and upload in it, because
+    // normal forms are not allowed to file upload via Ajax.
     $files_path = file_directory_path();
     $template_dir = variable_get('views_pdf_template_path', 'views_pdf_templates');
-    $dir = $files_path. '/' . $template_dir;
+    $dir = $files_path . '/' . $template_dir;
     if (!is_dir($dir)) {
       @mkdir($dir);
       @chmod($dir, 0775);
     }
-    
-    if (is_writable($dir)) {      
+            
+    if (is_writable($dir)) {
+      $template_path = file_create_path($dir);
+      // The file field is not called "template_file" as expected, it calls
+      // "row_options". The reason for that is not clear.
+      $file = file_save_upload('row_options', array(), $template_path);
       if ($file) {
         $form_state['values']['row_options']['template'] = $file->destination;
       }
