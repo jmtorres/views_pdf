@@ -247,6 +247,13 @@ class views_pdf_plugin_row_fields extends views_plugin_row {
         '#default_value' => isset($this->options['formats'][$field]['render']['is_html']) ? $this->options['formats'][$field]['render']['is_html'] : 1,
       );
       
+      $form['formats'][$field]['render']['swap_on_new_page'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Swap on new page'),
+        '#description' => t('If there is a high chance, that the content has not enough space to print on the current page, a new page is added.'),
+        '#default_value' => isset($this->options['formats'][$field]['render']['swap_on_new_page']) ? $this->options['formats'][$field]['render']['swap_on_new_page'] : 1,
+      );
+      
       $form['formats'][$field]['render']['eval_before'] = array(
         '#type' => 'textarea',
         '#title' => t('PHP Code Before Output'),

@@ -151,6 +151,13 @@ class views_pdf_plugin_style_table extends views_plugin_style {
         '#default_value' => isset($this->options['info'][$field]['header_style']['render']['is_html']) ? $this->options['info'][$field]['header_style']['render']['is_html'] : 1,
       );
       
+      $form['info'][$field]['header_style']['render']['swap_on_new_page'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Swap on new page'),
+        '#description' => t('If there is a high chance, that the content has not enough space to print on the current page, a new page is added.'),
+        '#default_value' => isset($this->options['formats'][$field]['render']['swap_on_new_page']) ? $this->options['formats'][$field]['render']['swap_on_new_page'] : 1,
+      );
+     
       $form['info'][$field]['header_style']['render']['eval_before'] = array(
         '#type' => 'textarea',
         '#title' => t('PHP Code Before Output'),
@@ -220,6 +227,13 @@ class views_pdf_plugin_style_table extends views_plugin_style {
         '#type' => 'checkbox',
         '#title' => t('Render As HTML'),
         '#default_value' => isset($this->options['info'][$field]['body_style']['render']['is_html']) ? $this->options['info'][$field]['body_style']['render']['is_html'] : 1,
+      );
+      
+      $form['info'][$field]['body_style']['render']['swap_on_new_page'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Swap on new page'),
+        '#description' => t('If there is a high chance, that the content has not enough space to print on the current page, a new page is added.'),
+        '#default_value' => isset($this->options['formats'][$field]['render']['swap_on_new_page']) ? $this->options['formats'][$field]['render']['swap_on_new_page'] : 1,
       );
       
       $form['info'][$field]['body_style']['render']['eval_before'] = array(

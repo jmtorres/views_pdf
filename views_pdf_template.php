@@ -41,6 +41,7 @@ class PdfTemplate extends FPDI
   protected $headerFooterData = array();
   protected $view = NULL;
   protected $headerFooterOptions = array();
+  protected $lastWritingPage = 1;
   
   
   
@@ -259,22 +260,71 @@ class PdfTemplate extends FPDI
    * This method draws a field on the PDF.
    */
   public function drawContent($row, $options, &$view = NULL, $key = NULL) {
+
+    // Set defaults:
+    $defaults = array(
+      'position' => array(
+        'corner' => 'top_left',
+        'x' => 0,
+        'y' => 0,
+        'object' => '',
+        'width' => 0,
+        'height' => 0,
+      ),
+      'text' => array(
+        'font_family' => 'default',
+        'font_style' => '',
+      ),
+      'render' => array(
+        'is_html' => TRUE,
+        'swap_on_new_page' => TRUE,
+        'eval_before' => '',
+        'eval_after' => '',
+      ),
+    );    
+    
+    $options = array_replace_recursive($defaults, $options);
+    
+    // Get the page dimensions
+    $pageDim = $this->getPageDimensions();
+    
+    // Check if there is at least 2% of vertical space to print something,
+    // if not then we need a new page. 
+    if ($options['render']['swap_on_new_page']) {
+      $enoughtSpace = ($this->y + $this->bMargin + $pageDim['hk'] * 0.02) < $pageDim['hk'];
+    }
+    else {
+      $enoughtSpace = true;
+    }
+    
     
     // Check if there is a page, if not add it:
-    if ($this->getPage() == 0 or $this->addNewPageBeforeNextContent == true) {
+    if (!$enoughtSpace or $this->getPage() == 0 or $this->addNewPageBeforeNextContent == true) {
       $this->addNewPageBeforeNextContent = false;
       $this->addPage();
     }
+    
+    // Get the page dimenstions again, because it can be that a new
+    // page was added with new dimensions.
     $pageDim = $this->getPageDimensions();
     
     if (empty($options['position']['object'])) {
       $options['position']['object'] = 'page';
     }
     
+    // Determine the last writting y coordinate, if we are on a new 
+    // page we need to reset it back to the top margin.
+    if ($this->lastWritingPage != $this->getPage() or ($this->y + $this->bMargin) > $pageDim['hk']) {
+      $last_writing_y_position = $this->tMargin;
+    }
+    else {
+      $last_writing_y_position = $this->y;
+    }
+    
     // Determin the x and y coordinates
     if ($options['position']['object'] == 'last_position') {
       $x = $this->x + $options['position']['x'];
-      $y = $this->y + $options['position']['y'];
+      $y = $last_writing_y_position + $options['position']['y'];
     }
     elseif ($options['position']['object'] == 'page') {
       
@@ -309,8 +359,7 @@ class PdfTemplate extends FPDI
       }
       else {
         $relative_to_element = $rs[1];
-      }
-      
+      }     
       
       if (isset($this->elements[$relative_to_element])){
         
@@ -340,15 +389,17 @@ class PdfTemplate extends FPDI
         }
         
         // Handle if the relative element is on another page. So using the 
-        // the last writing position instead for x. 
-        if ($this->getPage() != $this->elements[$relative_to_element]['page']) {
-          $x = $x - $this->elements[$relative_to_element]['x'] + $this->x;
+        // the last writing position instead for y. 
+        if ($this->getPage() != $this->elements[$relative_to_element]['page'] && $options['position']['object'] != 'self') {
+          $this->setPage($this->elements[$relative_to_element]['page']);
         }
-        
+        elseif ($this->getPage() != $this->elements[$relative_to_element]['page'] && $options['position']['object'] == 'self') {
+          $y = $y - $this->elements[$relative_to_element]['y'] + $last_writing_y_position;
+        }
       }
       else {
         $x = $this->x;
-        $y = $this->y;
+        $y = $last_writing_y_position;
       }
       
     }
@@ -405,6 +456,11 @@ class PdfTemplate extends FPDI
     
     // Set font
     $this->SetFont($font_family, implode('', $font_style), $font_size);
+    
+    // Save the last page before starting writing, this
+    // is needed to dected if we write over a page. Then we need
+    // to reset the y coordinate for the 'last_writing' position option.
+    $this->lastWritingPage = $this->getPage();
                 
     // Write the content of a field to the pdf file:
     $this->MultiCell($w, $h, $content, $border, $align, $fill, $ln, $x, $y, $reseth, $stretch, $ishtml, $autopadding, $maxh, $valign, $fitcell);
@@ -418,7 +474,7 @@ class PdfTemplate extends FPDI
       'y' => $y,
       'width' => empty($w) ? ($pageDim['wk'] - $this->rMargin-$x) : $w,
       'height' => $this->y - $y,
-      'page' => $this->getPage(),
+      'page' => $this->lastWritingPage,
     );
     
     // Run eval after
