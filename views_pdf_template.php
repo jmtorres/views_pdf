@@ -414,9 +414,16 @@ class PdfTemplate extends FPDI
       return;
     }
     
-    $this->SetX($x);
     $this->SetY($y);
+    $this->SetX($x);
+        
+    $this->renderRow($x, $y, $row, $options, $view, $key);
+  }
+  
+  protected function renderRow($x, $y, $row, $options, &$view = NULL, $key = NULL) {
     
+    $pageDim = $this->getPageDimensions();
+  
     // Render the content if it is not already:
     if (is_object($view) && $key != NULL ) {
       $content = $view->field[$key]->theme($row);
@@ -479,8 +486,8 @@ class PdfTemplate extends FPDI
     
     // Run eval after
     eval($options['render']['eval_after']);
-    
   }
+  
   
   /**
    * This method draws a table on the PDF.
@@ -492,12 +499,12 @@ class PdfTemplate extends FPDI
     $pageDim = $this->getPageDimensions();
     
     // Set draw point to the indicated position:
-    if (isset($options['position']['x']) && !empty($options['position']['x'])) {
-      //$this->SetX($options['position']['x']);
+    if (empty($options['position']['x'])) {
+      $options['position']['x'] = 0;
     }
-    
-    if (isset($options['position']['y']) && !empty($options['position']['y'])) {
-      //$this->SetY($options['position']['y']);
+        
+    if (empty($options['position']['y'])) {
+      $options['position']['y'] = 0;
     }
     
     if (isset($options['position']['width']) && !empty($options['position']['width'])) {
@@ -527,7 +534,7 @@ class PdfTemplate extends FPDI
     
     // Print header:
     $y = $this->y;
-    $x = $this->x;
+    $x = $options['position']['x'];
     
     $page = $this->getPage();
     if ($page == 0) {
@@ -550,13 +557,12 @@ class PdfTemplate extends FPDI
       else {
         $headerOptions['position']['width'] = $defaultColumnWidth;
       }
-      $headerOptions['position']['object'] = 'last_position';
+      $headerOptions['position']['object'] = 'last_position_without_reset';
       $this->SetY($y);
       $this->SetX($x);
       $this->setPage($page);
     
-      
-      $this->drawContent($column->options['label'], $headerOptions);
+      $this->renderRow($x, $y, $column->options['label'], $headerOptions);
       $x += $headerOptions['position']['width'];
     }
     
@@ -565,8 +571,22 @@ class PdfTemplate extends FPDI
       $options['position']['row_height'] = 0;
     }
     
+    
     foreach ($rows as $row) {
-      $x = $this->x;
+      $x = $options['position']['x'];
+ 
+       // Get the page dimensions
+      $pageDim = $this->getPageDimensions();
+            
+      if (($rowY + $this->bMargin + $options['position']['row_height']) > $pageDim['hk']) {
+        $rowY = $this->tMargin;
+        $this->addPage();
+      }
+      
+      if ($this->lastWritingPage != $this->getPage()) {
+        $rowY = $this->y; // $rowY - $pageDim['hk']
+      }
+      
       $y = $rowY;
       $page = $this->getPage();
       foreach ($columns as $id => $column) {
@@ -586,15 +606,16 @@ class PdfTemplate extends FPDI
         else {
           $bodyOptions['position']['width'] = $defaultColumnWidth;
         }
-        $bodyOptions['position']['object'] = 'last_position';
+        $bodyOptions['position']['object'] = 'last_position_without_reset';
         
+        $this->setPage($page);
         $this->SetY($y);
         $this->SetX($x);
-        $this->setPage($page);
         
         $bodyOptions['position']['height'] = 0;
-      
-        $this->drawContent($row, $bodyOptions, $view, $id);
+                
+        $this->renderRow($x, $y, $row, $bodyOptions, $view, $id);
+        
         $x += $headerOptions['position']['width'];
         
         // If the cell is writting over the row, we need to adjust the 
