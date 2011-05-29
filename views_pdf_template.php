@@ -515,9 +515,10 @@ class PdfTemplate extends FPDI
       $page = $this->getPage();
       foreach ($columns as $id => $column) {
       
-        if (!empty($column->options['exclude'])) {
-          // Render the element, but dont print anything
-          $view->field[$key]->theme($row);
+        if (!empty($column->options['exclude']) && is_object($view->field[$id])) {
+          // Render the element, but dont print the output. This
+          // is required to allow the use of tokens in other fields.
+          $view->field[$id]->theme($row);
           continue;
         }
 
