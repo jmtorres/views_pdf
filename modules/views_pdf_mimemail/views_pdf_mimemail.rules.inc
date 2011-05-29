@@ -162,7 +162,7 @@ function views_pdf_mimemail_rules_action_mail_to_user_form($settings = array(), 
  * Callback function for the settings form of the rule.
  */
 function views_pdf_mimemail_rules_action_mail_form($settings = array(), &$form) {
-  mimemail_rules_action_mail_form($settings, &$form);
+  mimemail_rules_action_mail_form($settings, $form);
   views_pdf_mimemail_rules_action_additional_form($settings, $form);
 }
 

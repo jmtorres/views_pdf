@@ -101,8 +101,13 @@ class views_pdf_plugin_display extends views_plugin_display_page {
       $path_to_store_pdf = $this->view->name;
     }
     
-    echo $this->view->pdf->Output($path_to_store_pdf, $destination);
-    exit();    
+    if ($destination == 'I') {
+      echo $this->view->pdf->Output($path_to_store_pdf, $destination);
+      exit();
+    }
+    else {
+      return $this->view->pdf->Output($path_to_store_pdf, $destination);
+    }  
   }
 
   /**
