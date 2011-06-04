@@ -75,6 +75,12 @@ class views_pdf_plugin_style_table extends views_plugin_style {
       'R' => t('Right'),
       'J' => t('Justify'),
     );      
+    
+    $hyphenate = array(
+      'none' => t('None'),
+      'auto' => t('Detect automatically'),
+    );
+    $hyphenate = array_merge($hyphenate, views_pdf_get_hyphenations());
 
     foreach ($columns as $field => $column) {
       
@@ -128,6 +134,16 @@ class views_pdf_plugin_style_table extends views_plugin_style {
         '#options' => $align,
         '#default_value' => $this->options['info'][$field]['header_style']['text']['align'] == NULL ? $this->display->handler->get_option('default_text_align') : $this->options['info'][$field]['header_style']['text']['align'],
       );
+
+      $form['info'][$field]['header_style']['text']['hyphenate'] = array(
+        '#type' => 'select',
+        '#title' => t('Text Hyphenation'),
+        '#options' => $hyphenate,
+        '#description' => t('If you want to use hyphenation, then you need to download from <a href="@url">ctan.org</a> your needed pattern set. Then upload it to the dir "hyphenate_patterns" in the TCPDF lib directory. Perhaps you need to create the dir first. If you select the automated detection, then we try to get the language of the current node and select an appropriate hyphenation pattern.', array('@url' => 'http://www.ctan.org/tex-archive/language/hyph-utf8/tex/generic/hyph-utf8/patterns/tex')),
+        '#default_value' => $this->options['info'][$field]['header_style']['text']['hyphenate'] == NULL ? $this->display->handler->get_option('default_text_hyphenate') : $this->options['info'][$field]['header_style']['text']['hyphenate'],
+      );
+
+
       $form['info'][$field]['header_style']['text']['color'] = array(
         '#type' => 'textfield',
         '#title' => t('Text Color'),
@@ -151,12 +167,12 @@ class views_pdf_plugin_style_table extends views_plugin_style {
         '#default_value' => isset($this->options['info'][$field]['header_style']['render']['is_html']) ? $this->options['info'][$field]['header_style']['render']['is_html'] : 1,
       );
       
-      $form['info'][$field]['header_style']['render']['swap_on_new_page'] = array(
+      /*$form['info'][$field]['header_style']['render']['swap_on_new_page'] = array(
         '#type' => 'checkbox',
         '#title' => t('Swap on new page'),
         '#description' => t('If there is a high chance, that the content has not enough space to print on the current page, a new page is added.'),
         '#default_value' => isset($this->options['formats'][$field]['render']['swap_on_new_page']) ? $this->options['formats'][$field]['render']['swap_on_new_page'] : 1,
-      );
+      );*/
      
       $form['info'][$field]['header_style']['render']['eval_before'] = array(
         '#type' => 'textarea',
@@ -207,6 +223,14 @@ class views_pdf_plugin_style_table extends views_plugin_style {
         '#options' => $align,
         '#default_value' => $this->options['info'][$field]['body_style']['text']['align'] == NULL ? $this->display->handler->get_option('default_text_align') : $this->options['info'][$field]['body_style']['text']['align'],
       );
+      $form['info'][$field]['body_style']['text']['hyphenate'] = array(
+        '#type' => 'select',
+        '#title' => t('Text Hyphenation'),
+        '#options' => $hyphenate,
+        '#description' => t('If you want to use hyphenation, then you need to download from <a href="@url">ctan.org</a> your needed pattern set. Then upload it to the dir "hyphenate_patterns" in the TCPDF lib directory. Perhaps you need to create the dir first. If you select the automated detection, then we try to get the language of the current node and select an appropriate hyphenation pattern.', array('@url' => 'http://www.ctan.org/tex-archive/language/hyph-utf8/tex/generic/hyph-utf8/patterns/tex')),
+        '#default_value' => $this->options['info'][$field]['body_style']['text']['hyphenate'] == NULL ? $this->display->handler->get_option('default_text_hyphenate') : $this->options['info'][$field]['body_style']['text']['hyphenate'],
+      );
+
       $form['info'][$field]['body_style']['text']['color'] = array(
         '#type' => 'textfield',
         '#title' => t('Text Color'),
@@ -229,12 +253,12 @@ class views_pdf_plugin_style_table extends views_plugin_style {
         '#default_value' => isset($this->options['info'][$field]['body_style']['render']['is_html']) ? $this->options['info'][$field]['body_style']['render']['is_html'] : 1,
       );
       
-      $form['info'][$field]['body_style']['render']['swap_on_new_page'] = array(
+      /*$form['info'][$field]['body_style']['render']['swap_on_new_page'] = array(
         '#type' => 'checkbox',
         '#title' => t('Swap on new page'),
         '#description' => t('If there is a high chance, that the content has not enough space to print on the current page, a new page is added.'),
         '#default_value' => isset($this->options['formats'][$field]['render']['swap_on_new_page']) ? $this->options['formats'][$field]['render']['swap_on_new_page'] : 1,
-      );
+      );*/
       
       $form['info'][$field]['body_style']['render']['eval_before'] = array(
         '#type' => 'textarea',
@@ -264,6 +288,11 @@ class views_pdf_plugin_style_table extends views_plugin_style {
       '#title' => t('Table Position'),
       '#collapsed' => TRUE,
       '#collapsable' => TRUE,
+    );
+    $form['position']['last_writing_position'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Relative to last writing position'),
+      '#default_value' => isset($this->options['position']['last_writing_position']) ? $this->options['position']['last_writing_position'] : 1,
     );
     $form['position']['x'] = array(
       '#type' => 'textfield',
@@ -315,6 +344,10 @@ class views_pdf_plugin_style_table extends views_plugin_style {
       
       if ($field['header_style']['text']['align'] == $this->display->handler->get_option('default_text_align')) {
         $form_state['values']['style_options']['info'][$id]['header_style']['text']['align'] = NULL;
+      }
+      
+      if ($field['header_style']['text']['hyphenate'] == $this->display->handler->get_option('default_text_hyphenate')) {
+        $form_state['values']['style_options']['info'][$id]['header_style']['text']['hyphenate'] = NULL;
       }  
       
       // Reset to default, if the elements are equal to the default settings
@@ -326,6 +359,10 @@ class views_pdf_plugin_style_table extends views_plugin_style {
       
       if ($field['body_style']['text']['align'] == $this->display->handler->get_option('default_text_align')) {
         $form_state['values']['style_options']['info'][$id]['body_style']['text']['align'] = NULL;
+      }  
+      
+      if ($field['body_style']['text']['hyphenate'] == $this->display->handler->get_option('default_text_hyphenate')) {
+        $form_state['values']['style_options']['info'][$id]['body_style']['text']['hyphenate'] = NULL;
       }  
     }
 

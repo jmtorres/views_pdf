@@ -75,7 +75,6 @@ class views_view_field_handler_include_view extends views_handler_field {
     // Get a list of the available fields and arguments for token replacement.
     $options = array();
     foreach ($this->view->display_handler->get_handlers('field') as $field => $handler) {
-      
       // We only use fields up to (and excluding) this one.
       if ($field == $this->options['id']) {
         break;
@@ -130,7 +129,7 @@ class views_view_field_handler_include_view extends views_handler_field {
   function render($values) {
     
     if (!empty($this->options['exclude'])) {
-    //  return '';
+      return '';
     }
   
     $displayType = $this->view->display_handler->get_style_type();
