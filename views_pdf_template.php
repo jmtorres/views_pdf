@@ -373,6 +373,8 @@ class PdfTemplate extends FPDI
       $options['text']['hyphenate'] = $view->display_handler->get_option('default_text_hyphenate');
     }
     
+    
+    
     if (isset($options['text']['hyphenate']) && $options['text']['hyphenate'] != 'none') {
       $patternFile = $options['text']['hyphenate'];
       if ($options['text']['hyphenate'] == 'auto' && is_object($row)) {
@@ -389,11 +391,15 @@ class PdfTemplate extends FPDI
       
       if (file_exists($patternFile)) {
         $hyphen_patterns = $this->getHyphenPatternsFromTEX($patternFile);
+        
+        // Bugfix if you like to print some html code to the PDF, we
+        // need to prevent the replacement of this tags.
+        $content = str_replace('&gt;', '&amp;gt;', $content);
+        $content = str_replace('&lt;', '&amp;lt;', $content);
         $content = $this->hyphenateText($content, $hyphen_patterns);
         
       }  
-    }
-    
+    }  
     
     // Set css variable
     if (is_object($view) && is_object($view->display_handler)) {
@@ -446,6 +452,8 @@ class PdfTemplate extends FPDI
     if ($stripHTML) {
       $content = strip_tags($content);
     }
+    
+    
                 
     // Write the content of a field to the pdf file:
     $this->MultiCell($w, $h, $content, $border, $align, $fill, $ln, $x, $y, $reseth, $stretch, $ishtml, $autopadding, $maxh, $valign, $fitcell);
