@@ -209,8 +209,9 @@ class PdfTemplate extends FPDI
     // Get the page dimensions
     $pageDim = $this->getPageDimensions();
     
-    // Check if there is at least 2% of vertical space to print something,
-    // if not then we need a new page. 
+    // Check if there is a minimum space defined. If so, then ensure
+    // that we have enough space left on this page. If not force adding
+    // a new one. 
     if (isset($options['render']['minimal_space'])) {
       $enoughtSpace = ($this->y + $this->bMargin + $options['render']['minimal_space']) < $pageDim['hk'];
     }
@@ -512,18 +513,19 @@ class PdfTemplate extends FPDI
     }
     
     $sumWidth = 0;
-    $numerOfColumnsWithoutWidth = 0;
+    $numberOfColumnsWithoutWidth = 0;
+    
     // Set the definitiv width of a column
     foreach ($columns as $id => $columnName) {
-      if (isset($option['info'][$id]['position']['width']) && !empty($option['info'][$id]['position']['width'])){
-        $sumWidth += $option['info'][$id]['position']['width'];
+      if (isset($options['info'][$id]['position']['width']) && !empty($options['info'][$id]['position']['width'])){
+        $sumWidth += $options['info'][$id]['position']['width'];
       }
       else {
-        $numerOfColumnsWithoutWidth++;
+        $numberOfColumnsWithoutWidth++;
       }
     }
-    if ($numerOfColumnsWithoutWidth > 0) {
-      $defaultColumnWidth = ($width - $sumWidth) / $numerOfColumnsWithoutWidth;
+    if ($numberOfColumnsWithoutWidth > 0) {
+      $defaultColumnWidth = ($width - $sumWidth) / $numberOfColumnsWithoutWidth;
     }
     else {
       $defaultColumnWidth = 0;
@@ -547,8 +549,8 @@ class PdfTemplate extends FPDI
 
       $headerOptions = $options['info'][$id]['header_style'];
       
-      if (isset($option['info'][$id]['position']['width']) && !empty($option['info'][$id]['position']['width'])){
-        $headerOptions['position']['width'] = $option['info'][$id]['position']['width'];
+      if (isset($options['info'][$id]['position']['width']) && !empty($options['info'][$id]['position']['width'])){
+        $headerOptions['position']['width'] = $options['info'][$id]['position']['width'];
       }
       else {
         $headerOptions['position']['width'] = $defaultColumnWidth;
@@ -597,8 +599,8 @@ class PdfTemplate extends FPDI
 
         $bodyOptions = $options['info'][$id]['body_style'];
       
-        if (isset($option['info'][$id]['position']['width']) && !empty($option['info'][$id]['position']['width'])){
-          $bodyOptions['position']['width'] = $option['info'][$id]['position']['width'];
+        if (isset($options['info'][$id]['position']['width']) && !empty($options['info'][$id]['position']['width'])){
+          $bodyOptions['position']['width'] = $options['info'][$id]['position']['width'];
         }
         else {
           $bodyOptions['position']['width'] = $defaultColumnWidth;
@@ -613,7 +615,7 @@ class PdfTemplate extends FPDI
                 
         $this->renderRow($x, $y, $row, $bodyOptions, $view, $id);
         
-        $x += $headerOptions['position']['width'];
+        $x += $bodyOptions['position']['width'];
         
         // If the cell is writting over the row, we need to adjust the 
         // row y position.
