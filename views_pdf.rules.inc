@@ -87,7 +87,6 @@ function views_pdf_rules_action_save($settings) {
     foreach ($view->display as $id => $display) {
       if ($display->display_plugin == 'pdf' && isset($display->handler)) {
         $display->handler->execute($path, 'F');
-        echo $arguments;
       }
     }
             
