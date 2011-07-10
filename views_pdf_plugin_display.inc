@@ -101,6 +101,10 @@ class views_pdf_plugin_display extends views_plugin_display_page {
       $path_to_store_pdf = $this->view->name;
     }
     
+    if (!preg_match('\.pdf$', $path_to_store_pdf)) {
+      $path_to_store_pdf .= '.pdf';
+    }
+    
     if ($destination == 'I') {
       echo $this->view->pdf->Output($path_to_store_pdf, $destination);
       exit();
