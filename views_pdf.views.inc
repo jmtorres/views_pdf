@@ -78,8 +78,6 @@ function views_pdf_views_plugins() {
         'accept attachments' => FALSE,
         'path' => $path,
         'admin' => t('PDF Page'),
-        'theme' => 'views_pdf', // For the prefix of template file!
-        'theme file' => 'views_pdf.theme.inc',
       ),
     ),
     'style' => array(
