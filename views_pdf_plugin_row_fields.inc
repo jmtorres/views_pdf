@@ -138,7 +138,7 @@ class views_pdf_plugin_row_fields extends views_plugin_row {
         '#type' => 'fieldset',
         '#title' => check_plain($option),
         '#collapsed' => TRUE,
-        '#collapsable' => TRUE,
+        '#collapsible' => TRUE,
       );
       
       
@@ -146,7 +146,7 @@ class views_pdf_plugin_row_fields extends views_plugin_row {
         '#type' => 'fieldset',
         '#title' => t('Position Settings'),
         '#collapsed' => FALSE,
-        '#collapsable' => TRUE,
+        '#collapsible' => TRUE,
       );
       
       $form['formats'][$field]['position']['object'] = array(
@@ -207,7 +207,7 @@ class views_pdf_plugin_row_fields extends views_plugin_row {
         '#type' => 'fieldset',
         '#title' => t('Text Settings'),
         '#collapsed' => FALSE,
-        '#collapsable' => TRUE,
+        '#collapsible' => TRUE,
       );
       
       $form['formats'][$field]['text']['font_size'] = array(
@@ -255,7 +255,7 @@ class views_pdf_plugin_row_fields extends views_plugin_row {
         '#type' => 'fieldset',
         '#title' => t('Render Settings'),
         '#collapsed' => FALSE,
-        '#collapsable' => TRUE,
+        '#collapsible' => TRUE,
       );
       $form['formats'][$field]['render']['is_html'] = array(
         '#type' => 'checkbox',

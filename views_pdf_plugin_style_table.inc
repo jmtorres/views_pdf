@@ -101,7 +101,7 @@ class views_pdf_plugin_style_table extends views_plugin_style {
         '#type' => 'fieldset',
         '#title' => t('Text Settings'),
         '#collapsed' => TRUE,
-        '#collapsable' => TRUE,
+        '#collapsible' => TRUE,
       );
       
       $form['info'][$field]['header_style']['text']['font_size'] = array(
@@ -158,7 +158,7 @@ class views_pdf_plugin_style_table extends views_plugin_style {
         '#type' => 'fieldset',
         '#title' => t('Render Settings'),
         '#collapsed' => TRUE,
-        '#collapsable' => TRUE,
+        '#collapsible' => TRUE,
       );
 
       $form['info'][$field]['header_style']['render']['is_html'] = array(
@@ -192,7 +192,7 @@ class views_pdf_plugin_style_table extends views_plugin_style {
         '#type' => 'fieldset',
         '#title' => t('Text Settings'),
         '#collapsed' => TRUE,
-        '#collapsable' => TRUE,
+        '#collapsible' => TRUE,
       );
       $form['info'][$field]['body_style']['text']['font_size'] = array(
         '#type' => 'textfield',
@@ -244,7 +244,7 @@ class views_pdf_plugin_style_table extends views_plugin_style {
         '#type' => 'fieldset',
         '#title' => t('Render Settings'),
         '#collapsed' => TRUE,
-        '#collapsable' => TRUE,
+        '#collapsible' => TRUE,
       );
 
       $form['info'][$field]['body_style']['render']['is_html'] = array(
@@ -287,7 +287,7 @@ class views_pdf_plugin_style_table extends views_plugin_style {
       '#type' => 'fieldset',
       '#title' => t('Table Position'),
       '#collapsed' => TRUE,
-      '#collapsable' => TRUE,
+      '#collapsible' => TRUE,
     );
     $form['position']['last_writing_position'] = array(
       '#type' => 'checkbox',
