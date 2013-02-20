@@ -519,6 +519,9 @@ class views_pdf_plugin_display extends views_plugin_display_page {
         if (is_writable($dir)) {
           $template_path = file_create_path($dir);
           $file = file_save_upload('template_file', array(), $template_path);
+          if (is_object($file)) {
+            file_set_status(&$file, FILE_STATUS_PERMANENT);
+          }
         }
                 
 
