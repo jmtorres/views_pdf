@@ -257,15 +257,15 @@ class PdfTemplate extends FPDI {
     // that we have enough space left on this page. If not force adding
     // a new one.
     if (isset($options['render']['minimal_space'])) {
-      $enoughtSpace = ($this->y + $this->bMargin + $options['render']['minimal_space']) < $pageDim['hk'];
+      $enoughSpace = ($this->y + $this->bMargin + $options['render']['minimal_space']) < $pageDim['hk'];
     }
     else {
-      $enoughtSpace = TRUE;
+      $enoughSpace = TRUE;
     }
 
 
     // Check if there is a page, if not add it:
-    if (!$enoughtSpace OR $this->getPage() == 0 OR $this->addNewPageBeforeNextContent == TRUE) {
+    if (!$enoughSpace OR $this->getPage() == 0 OR $this->addNewPageBeforeNextContent == TRUE) {
       $this->addNewPageBeforeNextContent = FALSE;
       $this->addPage();
     }
@@ -520,8 +520,13 @@ class PdfTemplate extends FPDI {
       $content = strip_tags($content);
     }
 
-    // Write the content of a field to the pdf file:
-    $this->MultiCell($w, $h, $prefix . $content, $border, $align, $fill, $ln, $x, $y, $reseth, $stretch, $ishtml, $autopadding, $maxh, $valign, $fitcell);
+    if(is_object($view) && is_object($view->field[$key]) && isset($view->field[$key]->field_info) && $view->field[$key]->field_info['type'] == 'image' && !empty($content)){
+      $this->Image($content, $x, $y, $w, $h);
+    }
+    else {
+      // Write the content of a field to the pdf file:
+      $this->MultiCell($w, $h, $prefix . $content, $border, $align, $fill, $ln, $x, $y, $reseth, $stretch, $ishtml, $autopadding, $maxh, $valign, $fitcell);
+    }
 
     // Reset font to default.
     $this->SetFont($this->defaultFontFamily, implode('', $this->defaultFontStyle), $this->defaultFontSize);

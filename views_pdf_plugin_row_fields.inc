@@ -34,7 +34,13 @@ class views_pdf_plugin_row_fields extends views_plugin_row {
         $options = array();
       }
 
-      $this->view->pdf->drawContent($row, $options, $this->view, $id);
+        $value = $this->view->field[$id]->get_value($row);
+        if(!$field->options['exclude'] && !($field->options['hide_empty'] && !empty($value))){
+          $this->view->pdf->drawContent($row, $options, $this->view, $id);
+        }
+        else {
+          $this->view->field[$id]->theme($row);
+        }
 
       // Set or update header / footer options per row
       // this ensures that we write the last record for each page
