@@ -35,7 +35,7 @@ class views_pdf_plugin_row_fields extends views_plugin_row {
       }
 
         $value = $this->view->field[$id]->get_value($row);
-        if(!$field->options['exclude'] && !($field->options['hide_empty'] && !empty($value))){
+        if(!$field->options['exclude'] && !($field->options['hide_empty'] && empty($value))){
           $this->view->pdf->drawContent($row, $options, $this->view, $id);
         }
         else {

@@ -520,7 +520,11 @@ class PdfTemplate extends FPDI {
       $content = strip_tags($content);
     }
 
-    if(is_object($view) && is_object($view->field[$key]) && isset($view->field[$key]->field_info) && $view->field[$key]->field_info['type'] == 'image' && !empty($content)){
+    if(is_object($view)
+      && is_object($view->field[$key])
+      && isset($view->field[$key]->field_info)
+      && $view->field[$key]->field_info['type'] == 'image'
+      && !empty($content)){
       $this->Image($content, $x, $y, $w, $h);
     }
     else {
