@@ -850,7 +850,7 @@ class PdfTemplate extends FPDI
       return '';
     }
     
-    if ($row != null && $view != null && !preg_match('/\.pdf/', $template)) {
+    if ($row != null && $view != null && !preg_match('/\.pdf/', $template) && isset($view->field[$template])) {
       return $view->field[$template]->theme($row);
     }
   
