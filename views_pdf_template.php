@@ -340,11 +340,13 @@ class PdfTemplate extends FPDI
 
       return;
     }
-    
-    $this->SetX($x);
-    $this->SetY($y);
-        
-    $this->renderRow($x, $y, $row, $options, $view, $key);
+
+    // Check to see if the row has content.  If it does, render it
+    if($view->field[$key]->theme($row)) {
+      $this->SetX($x);
+      $this->SetY($y);
+      $this->renderRow($x, $y, $row, $options, $view, $key);
+    }
   }
   
   protected function renderRow($x, $y, $row, $options, &$view = NULL, $key = NULL) {
