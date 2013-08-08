@@ -24,7 +24,7 @@ function views_pdf_rules_action_info() {
         'description' => t('You need to enter the View and the Display to use. Use the ids of them and separate them by a ":".'),
       ),
       'arguments' => array(
-        'type' => 'text',
+        'type' => 'list<text>',
         'label' => t('Views Arguments'),
         'optional' => TRUE,
         'description' => t('Place on each line one argument.')
@@ -34,6 +34,31 @@ function views_pdf_rules_action_info() {
         'label' => t('Store Path'),
         'optional' => FALSE,
         'description' => t('Enter an relative path where the view should be saved. You may use some tokens.'),
+      ),
+    ),
+  );
+
+  $items['views_pdf_rules_action_output'] = array(
+    'label' => t('Output PDF as file to client'),
+    'group' => t('Views PDF'),
+    'parameter' => array(
+      'views_pdf' => array(
+        'type' => 'text',
+        'label' => t('View'),
+        'options list' => 'views_pdf_rules_view_list',
+        'description' => t('You need to enter the View and the Display to use. Use the ids of them and separate them by a ":".'),
+      ),
+      'arguments' => array(
+        'type' => 'list<text>',
+        'label' => t('Views Arguments'),
+        'optional' => TRUE,
+        'description' => t('Place on each line one argument.')
+      ),
+      'path' => array(
+        'type' => 'text',
+        'label' => t('File Name'),
+        'optional' => FALSE,
+        'description' => t('Enter the file name that should be presented to the client to download. You may use some tokens.'),
       ),
     ),
   );
@@ -58,7 +83,7 @@ function views_pdf_rules_view_list() {
 }
 
 
-function views_pdf_rules_action_save($views_pdf, $arguments, $path) {
+function views_pdf_rules_action_save($views_pdf, $arguments, $path, $destination = 'F') {
   $splits = explode(':', $views_pdf);
   $view_id = $splits[0];
   $display_id = $splits[1];
@@ -66,7 +91,7 @@ function views_pdf_rules_action_save($views_pdf, $arguments, $path) {
   if (!empty($view_id)) {
     $view = views_get_view($view_id);
 
-    $view->set_arguments(explode("\n", $arguments));
+    $view->set_arguments($arguments);
 
     // Try to get pdf display
     if (!$view->set_display($display_id)) {
@@ -80,9 +105,13 @@ function views_pdf_rules_action_save($views_pdf, $arguments, $path) {
     $view->pre_execute();
     foreach ($view->display as $id => $display) {
       if ($display->display_plugin == 'pdf' && isset($display->handler)) {
-        $display->handler->execute($path, 'F');
+        $display->handler->execute($path, $destination);
       }
     }
 
   }
+}
+
+function views_pdf_rules_action_output($views_pdf, $arguments, $path) {
+  views_pdf_rules_action_save($views_pdf, $arguments, $path, 'I');
 }

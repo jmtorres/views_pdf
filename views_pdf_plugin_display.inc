@@ -126,12 +126,41 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     }
 
     ob_clean();
-    if ($destination == 'I') {
-      echo $this->view->pdf->Output($path_to_store_pdf, $destination);
-      exit();
-    }
-    else {
-      return $this->view->pdf->Output($path_to_store_pdf, $destination);
+    $pdf = $this->view->pdf->Output($path_to_store_pdf, 'S');
+    switch($destination) {
+      case 'I':
+      case 'D':
+        if (ob_get_level()) {
+          ob_end_clean();
+        }
+
+        $headers = array(
+          'Content-Type' => 'application/pdf',
+          'Content-Disposition' => "inline; filename=\"{$name}\"",
+          'Content-Length' => strlen($pdf),
+          'Cache-Control' => 'private, max-age=0, must-revalidate',
+          'Pragma' => 'public',
+        );
+
+        if($destination == 'D')
+          $headers['Content-Disposition'] = "attachment; filename=\"{$name}\"";
+
+        foreach ($headers as $name => $value) {
+          drupal_add_http_header($name, $value);
+        }
+
+        drupal_send_headers();
+
+        echo $pdf;
+
+        drupal_exit();
+      break;
+      case 'F':
+        file_unmanaged_save_data($pdf, $path_to_store_pdf);
+      break;
+      case 'S':
+      default:
+        return $pdf;
     }
   }
 
